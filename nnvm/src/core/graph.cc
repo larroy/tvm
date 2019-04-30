@@ -104,7 +104,7 @@ IndexedGraph::IndexedGraph(const Graph &g) {
       // control deps
       for (const auto& nptr : n->control_deps) {
         auto it = node2index_.find(nptr.get());
-        CHECK(it != node2index_.end() && it->first == nptr.get());
+        CHECK(it != node2index_.end()) << "control dep not found in graph";
         control_deps_.push_back(it->second);
       }
       control_rptr.push_back(control_deps_.size());
