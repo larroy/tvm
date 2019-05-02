@@ -20,7 +20,7 @@
 /*!
  *  Copyright (c) 2016 by Contributors
  * \file nnvm/graph.h
- * \brief Configuation of nnvm as well as basic data structure.
+ * \brief Configuration of nnvm as well as basic data structure.
  */
 #ifndef NNVM_GRAPH_H_
 #define NNVM_GRAPH_H_
