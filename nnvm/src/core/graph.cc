@@ -97,8 +97,8 @@ IndexedGraph::IndexedGraph(const Graph &g) {
       // input entries
       for (const auto& e : n->inputs) {
         auto it = node2index_.find(e.node.get());
-        CHECK(it != node2index_.end() && it->first == e.node.get());
-        input_entries_.emplace_back(NodeEntry{it->second, e.index, e.version});
+        CHECK(it != node2index_.end());
+        input_entries_.emplace_back(it->second, e.index, e.version);
       }
       inputs_rptr.push_back(input_entries_.size());
       // control deps
@@ -113,8 +113,7 @@ IndexedGraph::IndexedGraph(const Graph &g) {
     SubgraphSanityCheck(subgraphs);
 
   for (const auto& e : g.outputs) {
-    outputs_.emplace_back(NodeEntry{
-        node2index_.at(e.node.get()), e.index, e.version});
+    outputs_.emplace_back(node2index_.at(e.node.get()), e.index, e.version);
   }
 
   static auto& fmutate_inputs = Op::GetAttr<FMutateInputs>("FMutateInputs");
