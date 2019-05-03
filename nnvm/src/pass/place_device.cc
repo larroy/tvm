@@ -152,8 +152,7 @@ Graph PlaceDevice(Graph src) {
           auto copy_key = std::make_tuple(e.node_id, e.index, dev_id);
           auto it = copy_map.find(copy_key);
           if (it != copy_map.end() && it->first == copy_key) {
-            new_node->inputs.emplace_back(
-                NodeEntry{it->second, 0, 0});
+            new_node->inputs.emplace_back(it->second, 0, 0);
           } else {
             NodePtr copy_node = Node::Create();
             std::ostringstream os;
@@ -171,13 +170,11 @@ Graph PlaceDevice(Graph src) {
             }
             copy_map[copy_key] = copy_node;
             new_device_map[copy_node.get()] = dev_id;
-            new_node->inputs.emplace_back(
-                NodeEntry{std::move(copy_node), 0, 0});
+            new_node->inputs.emplace_back(std::move(copy_node), 0, 0);
           }
         } else {
           if (new_node_map[e.node_id] != nullptr) {
-            new_node->inputs.emplace_back(
-                NodeEntry{new_node_map[e.node_id], e.index, 0});
+            new_node->inputs.emplace_back(new_node_map[e.node_id], e.index, 0);
           } else {
             new_node->inputs.push_back(inode.source->inputs[i]);
           }
@@ -202,8 +199,7 @@ Graph PlaceDevice(Graph src) {
   Graph ret;
   for (const NodeEntry& e : src.outputs) {
     if (new_node_map[idx.node_id(e.node.get())] != nullptr) {
-      ret.outputs.emplace_back(
-          NodeEntry{new_node_map[idx.node_id(e.node.get())], e.index, e.version});
+      ret.outputs.emplace_back(new_node_map[idx.node_id(e.node.get())], e.index, e.version);
     } else {
       ret.outputs.emplace_back(e);
     }

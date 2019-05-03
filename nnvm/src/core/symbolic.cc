@@ -126,7 +126,7 @@ Symbol Symbol::Copy() const {
   for (const auto &kv : old_new) {
     for (const NodeEntry& e : kv.first->inputs) {
       Node *ptr = e.node.get();
-      kv.second->inputs.emplace_back(NodeEntry{old_new[ptr], e.index, e.version});
+      kv.second->inputs.emplace_back(old_new[ptr], e.index, e.version);
     }
     for (const NodePtr& p : kv.first->control_deps) {
       kv.second->control_deps.emplace_back(old_new[p.get()]);
@@ -135,7 +135,7 @@ Symbol Symbol::Copy() const {
   // set the head
   Symbol ret;
   for (const NodeEntry &e : outputs) {
-    ret.outputs.emplace_back(NodeEntry{old_new[e.node.get()], e.index, e.version});
+    ret.outputs.emplace_back(old_new[e.node.get()], e.index, e.version);
   }
   return ret;
 }
@@ -510,14 +510,14 @@ Symbol Symbol::GetInternals() const {
       if (n->is_variable()) {
         // grab version from variable.
         VariableParam& param = nnvm::get<VariableParam>(n->attrs.parsed);
-        ret.outputs.emplace_back(NodeEntry{node, 0, param.version});
+        ret.outputs.emplace_back(node, 0, param.version);
       } else {
         uint32_t nout = n->num_outputs();
         if (fnum_vis_output.count(n->op())) {
           nout = fnum_vis_output[n->op()](n->attrs);
         }
         for (uint32_t i = 0; i < nout; ++i) {
-          ret.outputs.emplace_back(NodeEntry{node, i, 0});
+          ret.outputs.emplace_back(node, i, 0);
         }
       }
     });

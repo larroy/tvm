@@ -75,7 +75,7 @@ Graph OrderMutation(const Graph& src) {
         auto it = version_hist.find(e.node.get());
         if (it != version_hist.end()) {
           std::vector<NodeEntry>& vec = it->second;
-          vec.emplace_back(NodeEntry{n, IsMutate(mutate_inputs, i), e.version});
+          vec.emplace_back(n, IsMutate(mutate_inputs, i), e.version);
         }
       } else {
         if (old_new.count(e.node.get()) != 0) need_repl = true;
@@ -158,8 +158,7 @@ Graph OrderMutation(const Graph& src) {
   }
   Graph ret;
   for (const NodeEntry &e : src.outputs) {
-    ret.outputs.emplace_back(NodeEntry{
-        get_with_default(old_new, e.node.get(), e.node), e.index, e.version});
+    ret.outputs.emplace_back(get_with_default(old_new, e.node.get(), e.node), e.index, e.version);
   }
   return ret;
 }

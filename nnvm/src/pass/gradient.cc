@@ -42,7 +42,7 @@ NodeEntry DefaultAggregateGradient(std::vector<NodeEntry>&& v) {
     zero_node->attrs.op = Op::Get("zeros");
     zero_node->attrs.name = "zero_grad";
     zero_node->attrs.op->attr_parser(&(zero_node->attrs));
-    return NodeEntry{zero_node, 0, 0};
+    return NodeEntry{std::move(zero_node)};
   } else {
     NodePtr sum_node = Node::Create();
     sum_node->attrs.op = Op::Get("elemwise_sum");
@@ -50,7 +50,7 @@ NodeEntry DefaultAggregateGradient(std::vector<NodeEntry>&& v) {
     sum_node->attrs.name = "grad_sum";
     sum_node->attrs.dict["num_args"] = std::to_string(sum_node->inputs.size());
     sum_node->attrs.op->attr_parser(&(sum_node->attrs));
-    return NodeEntry{sum_node, 0, 0};
+    return NodeEntry{std::move(sum_node)};
   }
 }
 
@@ -174,7 +174,7 @@ Graph Gradient(Graph src) {
     if (ptr->is_variable()) continue;
     out_agg_grads.clear();
     auto& out_grad_vec = output_grads.at(ptr.get());
-    for (uint32_t i = 0; i < out_grad_vec.size(); ++i) {
+    for (size_t i = 0; i < out_grad_vec.size(); ++i) {
       GradEntry& e = out_grad_vec[i];
       e.sum = agg_fun(std::move(e.grads));
       if (e.need_attr_hint && attr_hint_fun != nullptr) {
@@ -189,24 +189,24 @@ Graph Gradient(Graph src) {
       if (grad_fun_map.contains(ptr->op())) {
         input_grads = grad_fun_map[ptr->op()](fwd_node, out_agg_grads);
         CHECK_EQ((*rit)->inputs.size(), input_grads.size())
-            << "Gradient function not returning enough gradient";
+            << "Gradient function not returning enough gradient, there should be as many gradients"
+               "as inputs returned.";
       } else if (CheckGradAllZero(out_agg_grads, zero_ops)) {
         for (size_t i = 0; i < fwd_node->num_inputs(); ++i) {
           std::ostringstream os;
-          if (1 == fwd_node->num_inputs()) {
+          if (fwd_node->num_inputs() == 1) {
             os << fwd_node->attrs.name << "_backward";
           } else {
-            os << fwd_node->attrs.name << "_in" << i << "_backward";
+            os << fwd_node->attrs.name << "_in_" << i << "_backward";
           }
           auto p = Node::Create();
           p->attrs.op = zero_ops[0];
           p->attrs.name = os.str();
           p->inputs.push_back(fwd_node->inputs[i]);
           p->control_deps.emplace_back(fwd_node);
-          if (p->op()->attr_parser != nullptr) {
+          if (p->op()->attr_parser != nullptr)
             p->op()->attr_parser(&(p->attrs));
-          }
-          input_grads.emplace_back(p, 0, 0);
+          input_grads.emplace_back(std::move(p));
         }
       } else {
         LOG(FATAL) << "Operator " << fwd_node->op()->name << " is non-differentiable "
@@ -248,14 +248,14 @@ Graph Gradient(Graph src) {
         NodePtr copy_node = Node::Create();
         std::ostringstream os;
         os << entry.sum.node->attrs.name << "_" << kv->second.first << "_copy";
-        kv->second.first++;
+        ++kv->second.first;
         copy_node->attrs.op = copy_op;
         copy_node->attrs.name = os.str();
         copy_node->inputs.emplace_back(entry.sum);
         if (copy_node->attrs.op->attr_parser != nullptr) {
             copy_node->attrs.op->attr_parser(&(copy_node->attrs));
         }
-        unique_grads.emplace(NodeEntry{std::move(copy_node), 0, 0}, std::make_pair(1, counter));
+        unique_grads.emplace(NodeEntry(std::move(copy_node)), std::make_pair(1, counter));
       }
     } else {
         ret.outputs[counter] = entry.sum;

@@ -265,7 +265,7 @@ int NNSymbolListInputVariables(SymbolHandle symbol,
   ret->ret_handles.reserve(vs.size());
   for (size_t i = 0; i < vs.size(); ++i) {
     nnvm::Symbol* rs = new nnvm::Symbol();
-    rs->outputs.push_back(NodeEntry{vs[i], 0, 0});
+    rs->outputs.emplace_back(vs[i]);
     ret->ret_handles.push_back(rs);
   }
   *out_size = static_cast<nn_uint>(vs.size());

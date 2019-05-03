@@ -229,7 +229,7 @@ std::shared_ptr<Symbol> JSONGraph2Symbol(const JSONGraph &jgraph, bool no_parse)
     n.node->inputs.reserve(n.inputs.size());
     for (const JSONNode::Entry &e : n.inputs) {
       CHECK(e.node_id < jgraph.nodes.size());
-      n.node->inputs.emplace_back(NodeEntry{jgraph.nodes[e.node_id].node, e.index, e.version});
+      n.node->inputs.emplace_back(jgraph.nodes[e.node_id].node, e.index, e.version);
     }
     n.node->control_deps.reserve(n.control_deps.size());
     for (uint32_t nid : n.control_deps) {
@@ -261,7 +261,7 @@ std::shared_ptr<Symbol> JSONGraph2Symbol(const JSONGraph &jgraph, bool no_parse)
   symbol->outputs.reserve(jgraph.heads.size());
   for (const JSONNode::Entry &e : jgraph.heads) {
     CHECK(e.node_id < jgraph.nodes.size());
-    symbol->outputs.emplace_back(NodeEntry{jgraph.nodes[e.node_id].node, e.index, e.version});
+    symbol->outputs.emplace_back(jgraph.nodes[e.node_id].node, e.index, e.version);
   }
   return symbol;
 }

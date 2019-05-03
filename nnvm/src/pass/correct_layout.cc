@@ -147,7 +147,7 @@ nnvm::Graph CorrectLayout(nnvm::Graph src) {
 
   std::vector<nnvm::NodeEntry> outputs;
   for (const auto& e : idx.outputs()) {
-    outputs.emplace_back(nnvm::NodeEntry{mirror_vec[e.node_id], e.index, e.version});
+    outputs.emplace_back(mirror_vec[e.node_id], e.index, e.version);
   }
 
   nnvm::Graph ret;

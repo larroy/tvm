@@ -113,8 +113,7 @@ IndexedGraph::IndexedGraph(const Graph &g) {
     SubgraphSanityCheck(subgraphs);
 
   for (const auto& e : g.outputs) {
-    outputs_.emplace_back(NodeEntry{
-        node2index_.at(e.node.get()), e.index, e.version});
+    outputs_.emplace_back(NodeEntry{node2index_.at(e.node.get()), e.index, e.version});
   }
 
   static auto& fmutate_inputs = Op::GetAttr<FMutateInputs>("FMutateInputs");
@@ -133,8 +132,8 @@ IndexedGraph::IndexedGraph(const Graph &g) {
   }
   const uint32_t* cptr = dmlc::BeginPtr(control_deps_);
   for (size_t nid = 0; nid < nodes_.size(); ++nid) {
-    nodes_[nid].control_deps = array_view<uint32_t>(
-        cptr + control_rptr[nid], cptr + control_rptr[nid + 1]);
+    nodes_[nid].control_deps = array_view<uint32_t>(cptr + control_rptr[nid],
+        cptr + control_rptr[nid + 1]);
   }
 }
 
